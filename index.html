@@ -2,151 +2,112 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tebak Seni Nusantara</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizBlast!</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- MODAL NAMA -->
-  <div id="modal-nama" class="modal-overlay hidden">
-    <div class="modal-box">
-      <div class="modal-icon"><i class="bi bi-person-fill"></i></div>
-      <h2>Selamat Datang!</h2>
-      <p>Masukkan namamu sebelum bermain</p>
-      <input type="text" id="input-nama" placeholder="Nama kamu..." maxlength="20"/>
-      <button id="btn-simpan-nama"><i class="bi bi-check-lg"></i> Mulai</button>
-    </div>
-  </div>
+  <!-- PAGE: HOME -->
+  <div id="page-home" class="page active">
+    <div class="stars"></div>
 
-  <!-- PAGE 1: BERANDA -->
-  <div id="page-beranda" class="page active">
-    <div class="beranda-wrap">
-      <div class="beranda-deco">
-        <span class="deco-batik">&#10070;</span>
-        <span class="deco-batik">&#9670;</span>
-        <span class="deco-batik">&#10070;</span>
-      </div>
-      <div class="beranda-header">
-        <div class="logo-icon"><i class="bi bi-globe-asia-australia"></i></div>
-        <h1>Tebak Seni<br/><span>Nusantara</span></h1>
-        <p class="tagline">Uji pengetahuanmu tentang seni &amp; budaya Indonesia</p>
+    <div class="home-container">
+      <div class="logo-wrap">
+        <div class="logo-glow">QUIZ</div>
+        <div class="logo-main">BLAST<span class="logo-bang">!</span></div>
+        <div class="logo-sub">Uji Pengetahuanmu Sekarang</div>
       </div>
 
-      <div id="sapa-user" class="sapa-user hidden">
-        <i class="bi bi-hand-wave"></i> Halo, <span id="nama-display"></span>!
+      <!-- Name Modal -->
+      <div class="name-card" id="name-card">
+        <div class="name-card-label">Masukkan Namamu</div>
+        <input type="text" id="name-input" class="name-input" placeholder="Nama kamu..." maxlength="20" autocomplete="off" />
+        <button class="btn btn-primary" id="btn-save-name">SIMPAN ✓</button>
       </div>
 
-      <div class="beranda-btn-group">
-        <button id="btn-main" class="btn-primary">
-          <i class="bi bi-play-fill"></i> Main Sekarang
-        </button>
-        <button id="btn-leaderboard" class="btn-secondary">
-          <i class="bi bi-trophy-fill"></i> Leaderboard
-        </button>
-      </div>
-
-      <div class="beranda-info">
-        <div class="info-card">
-          <i class="bi bi-question-circle-fill"></i>
-          <span>10 Soal</span>
-        </div>
-        <div class="info-card">
-          <i class="bi bi-clock-fill"></i>
-          <span>10 Detik / Soal</span>
-        </div>
-        <div class="info-card">
-          <i class="bi bi-lightbulb-fill"></i>
-          <span>3 Clue</span>
+      <!-- Welcome + Buttons -->
+      <div class="welcome-area" id="welcome-area" style="display:none">
+        <div class="welcome-text">Halo, <span id="display-name" class="highlight-name"></span>! 👋</div>
+        <div class="home-buttons">
+          <button class="btn btn-start" id="btn-start">
+            <span class="btn-icon">▶</span> MULAI MAIN
+          </button>
+          <button class="btn btn-score" id="btn-show-score">
+            <span class="btn-icon">🏆</span> PAPAN SKOR
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- LEADERBOARD PANEL -->
-    <div id="leaderboard-panel" class="leaderboard-panel hidden">
-      <div class="lb-header">
-        <h3><i class="bi bi-trophy-fill"></i> Leaderboard</h3>
-        <button id="btn-tutup-lb"><i class="bi bi-x-lg"></i></button>
-      </div>
-      <ol class="lb-list">
-        <li class="lb-item lb-gold"><span class="lb-rank"><i class="bi bi-1-circle-fill"></i></span><span class="lb-name">Dewi Sartika</span><span class="lb-score">980</span></li>
-        <li class="lb-item lb-silver"><span class="lb-rank"><i class="bi bi-2-circle-fill"></i></span><span class="lb-name">Raden Ajeng</span><span class="lb-score">940</span></li>
-        <li class="lb-item lb-bronze"><span class="lb-rank"><i class="bi bi-3-circle-fill"></i></span><span class="lb-name">Budi Santoso</span><span class="lb-score">890</span></li>
-        <li class="lb-item"><span class="lb-rank"><i class="bi bi-4-circle-fill"></i></span><span class="lb-name">Siti Rahayu</span><span class="lb-score">850</span></li>
-        <li class="lb-item"><span class="lb-rank"><i class="bi bi-5-circle-fill"></i></span><span class="lb-name">Agus Wijaya</span><span class="lb-score">810</span></li>
-        <li class="lb-item"><span class="lb-rank"><i class="bi bi-6-circle-fill"></i></span><span class="lb-name">Kartini M.</span><span class="lb-score">760</span></li>
-        <li class="lb-item"><span class="lb-rank"><i class="bi bi-7-circle-fill"></i></span><span class="lb-name">Hendra Putra</span><span class="lb-score">720</span></li>
-      </ol>
-    </div>
-  </div>
-
-  <!-- PAGE 2: GAME -->
-  <div id="page-game" class="page hidden">
-    <div class="game-topbar">
-      <div class="game-progress">
-        <span id="nomor-soal">1</span> / 10
-      </div>
-      <div class="game-timer-wrap">
-        <i class="bi bi-stopwatch-fill"></i>
-        <span id="timer-display">10</span>
-      </div>
-      <div class="game-score-wrap">
-        <i class="bi bi-star-fill"></i>
-        <span id="score-display">0</span>
-      </div>
-    </div>
-
-    <div class="progress-bar-wrap">
-      <div id="progress-bar" class="progress-bar-fill"></div>
-    </div>
-
-    <div class="game-body">
-      <div class="soal-card">
-        <div class="soal-kategori" id="soal-kategori"><i class="bi bi-tag-fill"></i> <span id="kategori-text">Tari</span></div>
-        <p id="teks-soal" class="teks-soal">Pertanyaan muncul di sini...</p>
-        <div id="clue-box" class="clue-box hidden">
-          <i class="bi bi-lightbulb-fill"></i> <span id="clue-text"></span>
-        </div>
-      </div>
-
-      <div class="jawaban-grid" id="jawaban-grid">
-        <!-- Diisi JS -->
-      </div>
-
-      <div class="game-actions">
-        <button id="btn-clue" class="btn-clue">
-          <i class="bi bi-lightbulb-fill"></i> Clue
-          <span class="clue-badge" id="clue-sisa">3</span>
-        </button>
+    <!-- Scoreboard Modal -->
+    <div class="modal-overlay" id="score-modal">
+      <div class="modal-box">
+        <div class="modal-title">🏆 PAPAN SKOR</div>
+        <div class="score-list" id="score-list"></div>
+        <button class="btn btn-close" id="btn-close-score">TUTUP ✕</button>
       </div>
     </div>
   </div>
 
-  <!-- PAGE 3: HASIL -->
-  <div id="page-hasil" class="page hidden">
-    <div class="hasil-wrap">
-      <div id="hasil-icon" class="hasil-icon">
-        <i class="bi bi-patch-check-fill"></i>
+  <!-- PAGE: GAME -->
+  <div id="page-game" class="page">
+    <div class="game-header">
+      <div class="game-info">
+        <div class="question-counter" id="question-counter">Soal <span id="q-num">1</span> / 10</div>
+        <div class="score-display">Skor: <span id="live-score">0</span></div>
       </div>
-      <h2 id="hasil-judul">Luar Biasa!</h2>
-      <div class="hasil-score-box">
-        <span class="label-score">Skor Kamu</span>
-        <span id="final-score" class="final-score">0</span>
+      <div class="timer-wrap">
+        <svg class="timer-ring" viewBox="0 0 60 60">
+          <circle class="ring-bg" cx="30" cy="30" r="26"/>
+          <circle class="ring-progress" id="ring-progress" cx="30" cy="30" r="26"/>
+        </svg>
+        <div class="timer-num" id="timer-num">10</div>
       </div>
+    </div>
 
-      <div class="review-list" id="review-list">
-        <!-- Diisi JS -->
-      </div>
+    <div class="clue-bar">
+      <div class="clue-label">CLUE:</div>
+      <button class="clue-btn" id="clue-1" data-index="0">💡 1</button>
+      <button class="clue-btn" id="clue-2" data-index="1">💡 2</button>
+      <button class="clue-btn" id="clue-3" data-index="2">💡 3</button>
+    </div>
 
-      <div class="hasil-actions">
-        <button id="btn-main-lagi" class="btn-primary">
-          <i class="bi bi-arrow-clockwise"></i> Main Lagi
-        </button>
-        <button id="btn-ke-beranda" class="btn-secondary">
-          <i class="bi bi-house-fill"></i> Beranda
-        </button>
+    <div class="clue-display" id="clue-display"></div>
+
+    <div class="question-card" id="question-card">
+      <div class="question-text" id="question-text">Memuat soal...</div>
+    </div>
+
+    <div class="options-grid" id="options-grid">
+      <button class="option-btn" data-idx="0"><span class="opt-label">A</span><span class="opt-text" id="opt-0"></span></button>
+      <button class="option-btn" data-idx="1"><span class="opt-label">B</span><span class="opt-text" id="opt-1"></span></button>
+      <button class="option-btn" data-idx="2"><span class="opt-label">C</span><span class="opt-text" id="opt-2"></span></button>
+      <button class="option-btn" data-idx="3"><span class="opt-label">D</span><span class="opt-text" id="opt-3"></span></button>
+    </div>
+
+    <div class="feedback-overlay" id="feedback-overlay">
+      <div class="feedback-icon" id="feedback-icon"></div>
+      <div class="feedback-text" id="feedback-text"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: RESULT -->
+  <div id="page-result" class="page">
+    <div class="result-container">
+      <div class="result-emoji" id="result-emoji">🎉</div>
+      <div class="result-title" id="result-title">LUAR BIASA!</div>
+      <div class="result-name" id="result-name"></div>
+      <div class="result-score-wrap">
+        <div class="result-score-label">SKOR AKHIR</div>
+        <div class="result-score" id="result-score">0</div>
+        <div class="result-max">dari 1000</div>
+      </div>
+      <div class="result-correct" id="result-correct">0 dari 10 soal benar</div>
+      <div class="result-buttons">
+        <button class="btn btn-start" id="btn-play-again">▶ MAIN LAGI</button>
+        <button class="btn btn-score" id="btn-home">🏠 HOME</button>
       </div>
     </div>
   </div>

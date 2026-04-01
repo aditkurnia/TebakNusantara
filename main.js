@@ -1,584 +1,380 @@
-// =====================
-// SOUND ENGINE (Web Audio API)
-// =====================
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let ctx = null;
-
-function getCtx() {
-  if (!ctx) ctx = new AudioCtx();
-  return ctx;
-}
-
-function playBenar() {
-  const ac = getCtx();
-  const freqs = [523, 659, 784]; // C, E, G
-  freqs.forEach((f, i) => {
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.connect(gain);
-    gain.connect(ac.destination);
-    osc.type = 'sine';
-    osc.frequency.value = f;
-    const t = ac.currentTime + i * 0.1;
-    gain.gain.setValueAtTime(0.25, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-    osc.start(t);
-    osc.stop(t + 0.3);
-  });
-}
-
-function playSalah() {
-  const ac = getCtx();
-  const osc = ac.createOscillator();
-  const gain = ac.createGain();
-  osc.connect(gain);
-  gain.connect(ac.destination);
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(300, ac.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(100, ac.currentTime + 0.35);
-  gain.gain.setValueAtTime(0.25, ac.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
-  osc.start();
-  osc.stop(ac.currentTime + 0.35);
-}
-
-function playTikTok() {
-  const ac = getCtx();
-  const buf = ac.createBuffer(1, ac.sampleRate * 0.05, ac.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
-  }
-  const src = ac.createBufferSource();
-  const gain = ac.createGain();
-  src.buffer = buf;
-  src.connect(gain);
-  gain.connect(ac.destination);
-  gain.gain.value = 0.15;
-  src.start();
-}
-
-function playWaktuHabis() {
-  const ac = getCtx();
-  [400, 300, 200].forEach((f, i) => {
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.connect(gain);
-    gain.connect(ac.destination);
-    osc.type = 'square';
-    osc.frequency.value = f;
-    const t = ac.currentTime + i * 0.15;
-    gain.gain.setValueAtTime(0.15, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-    osc.start(t);
-    osc.stop(t + 0.12);
-  });
-}
-
-function playClue() {
-  const ac = getCtx();
-  const osc = ac.createOscillator();
-  const gain = ac.createGain();
-  osc.connect(gain);
-  gain.connect(ac.destination);
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(880, ac.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(1100, ac.currentTime + 0.15);
-  gain.gain.setValueAtTime(0.18, ac.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.2);
-  osc.start();
-  osc.stop(ac.currentTime + 0.2);
-}
-
-function playStart() {
-  const ac = getCtx();
-  [392, 523, 659, 784].forEach((f, i) => {
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.connect(gain);
-    gain.connect(ac.destination);
-    osc.type = 'sine';
-    osc.frequency.value = f;
-    const t = ac.currentTime + i * 0.09;
-    gain.gain.setValueAtTime(0.2, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-    osc.start(t);
-    osc.stop(t + 0.25);
-  });
-}
-
-// =====================
-// ANIMASI HELPERS
-// =====================
-(function injectStyles() {
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes shakeAnim {
-      0%,100%{transform:translateX(0)}
-      15%{transform:translateX(-8px)}
-      30%{transform:translateX(8px)}
-      45%{transform:translateX(-6px)}
-      60%{transform:translateX(6px)}
-      75%{transform:translateX(-3px)}
-      90%{transform:translateX(3px)}
-    }
-    @keyframes bounceAnim {
-      0%,100%{transform:scale(1)}
-      30%{transform:scale(1.12)}
-      60%{transform:scale(0.95)}
-      80%{transform:scale(1.05)}
-    }
-    @keyframes popIn {
-      0%{transform:scale(0.7);opacity:0}
-      70%{transform:scale(1.08);opacity:1}
-      100%{transform:scale(1);opacity:1}
-    }
-    @keyframes pulseRed {
-      0%,100%{background:var(--primary)}
-      50%{background:#7B241C}
-    }
-    @keyframes slideDown {
-      from{opacity:0;transform:translateY(-10px)}
-      to{opacity:1;transform:translateY(0)}
-    }
-    .anim-shake { animation: shakeAnim 0.45s ease both; }
-    .anim-bounce { animation: bounceAnim 0.45s ease both; }
-    .anim-popin { animation: popIn 0.3s ease both; }
-    .anim-pulse-red { animation: pulseRed 0.35s ease 2; }
-    .anim-slide-down { animation: slideDown 0.25s ease both; }
-    .anim-in { animation: slideDown 0.3s ease both; }
-  `;
-  document.head.appendChild(style);
-})();
-
-function animateEl(el, animClass, duration = 450) {
-  if (!el) return;
-  el.classList.remove(animClass);
-  void el.offsetWidth;
-  el.classList.add(animClass);
-  setTimeout(() => el.classList.remove(animClass), duration);
-}
-
-function shakeEl(el)  { animateEl(el, 'anim-shake', 450); }
-function bounceEl(el) { animateEl(el, 'anim-bounce', 450); }
-function popInEl(el)  { animateEl(el, 'anim-popin', 300); }
-
-function flashTopbar() {
-  animateEl(document.querySelector('.game-topbar'), 'anim-pulse-red', 700);
-}
-
-// =====================
-// DATA SOAL
-// =====================
-const BANK_SOAL = [
+// ===== QUESTIONS DATA =====
+const QUESTIONS = [
   {
-    id: 1, kategori: "Tari",
-    soal: "Tari yang berasal dari Bali dan biasanya dibawakan oleh perempuan dengan gerakan tangan yang halus adalah...",
-    pilihan: ["Tari Kecak", "Tari Legong", "Tari Pendet", "Tari Barong"],
-    jawaban: "Tari Legong",
-    clue: "Tari ini identik dengan kostum indah dan gerakan mata yang khas."
+    question: "Ibu kota negara Jepang adalah...",
+    options: ["Beijing", "Seoul", "Tokyo", "Bangkok"],
+    answer: 2,
+    clues: ["Letaknya di Pulau Honshu", "Dikenal dengan Menara Tokyo", "Kota dengan penduduk terbanyak di dunia"]
   },
   {
-    id: 2, kategori: "Kain",
-    soal: "Teknik pembuatan kain dengan cara mengikat dan mencelup benang sebelum ditenun disebut...",
-    pilihan: ["Batik", "Songket", "Tenun Ikat", "Tapis"],
-    jawaban: "Tenun Ikat",
-    clue: "Teknik ini ditemukan di NTT, NTB, dan Kalimantan."
+    question: "Planet terbesar di Tata Surya kita adalah...",
+    options: ["Saturnus", "Jupiter", "Neptunus", "Uranus"],
+    answer: 1,
+    clues: ["Ini planet ke-5 dari Matahari", "Memiliki Bintik Merah Besar yang terkenal", "Massanya lebih dari 300 kali Bumi"]
   },
   {
-    id: 3, kategori: "Wayang",
-    soal: "Tokoh wayang yang merupakan pemimpin Pandawa Lima adalah...",
-    pilihan: ["Arjuna", "Bima", "Yudistira", "Nakula"],
-    jawaban: "Yudistira",
-    clue: "Dia dikenal sebagai sosok yang paling bijak dan jujur di antara Pandawa."
+    question: "Siapakah penemu bola lampu listrik yang dipraktikkan secara komersial?",
+    options: ["Nikola Tesla", "Albert Einstein", "Isaac Newton", "Thomas Edison"],
+    answer: 3,
+    clues: ["Lahir di Amerika Serikat tahun 1847", "Juga menemukan fonograf dan kamera film", "Julukannya adalah 'The Wizard of Menlo Park'"]
   },
   {
-    id: 4, kategori: "Alat Musik",
-    soal: "Angklung adalah alat musik tradisional yang berasal dari daerah...",
-    pilihan: ["Jawa Tengah", "Sumatera Barat", "Jawa Barat", "Bali"],
-    jawaban: "Jawa Barat",
-    clue: "Alat musik ini terbuat dari bambu dan dimainkan dengan cara digoyangkan."
+    question: "Benua manakah yang memiliki luas terbesar di dunia?",
+    options: ["Afrika", "Amerika", "Asia", "Eropa"],
+    answer: 2,
+    clues: ["Tempat tinggal lebih dari 4 miliar orang", "Rumah bagi negara terluas, Rusia", "Gunung tertinggi, Everest, ada di sini"]
   },
   {
-    id: 5, kategori: "Tari",
-    soal: "Tari Saman berasal dari suku...",
-    pilihan: ["Batak", "Minangkabau", "Gayo", "Dayak"],
-    jawaban: "Gayo",
-    clue: "Suku ini mendiami dataran tinggi di Provinsi Aceh."
+    question: "Berapa hasil dari 15 × 15?",
+    options: ["200", "225", "215", "250"],
+    answer: 1,
+    clues: ["Hasilnya di antara 200 dan 230", "Angkanya palindrom (bisa dibaca dua arah)", "15 + 15 = 30, tapi ini perkalian bukan penjumlahan"]
   },
   {
-    id: 6, kategori: "Batik",
-    soal: "Motif batik yang mendapat pengaruh budaya Cina dan Arab, khas kota Pekalongan adalah...",
-    pilihan: ["Motif Mega Mendung", "Motif Kawung", "Motif Jlamprang", "Motif Sido Mukti"],
-    jawaban: "Motif Jlamprang",
-    clue: "Motif ini memiliki pola geometris berbentuk bintang."
+    question: "Bahasa pemrograman apa yang dibuat oleh Brendan Eich pada 1995?",
+    options: ["Python", "Java", "JavaScript", "PHP"],
+    answer: 2,
+    clues: ["Digunakan di hampir semua browser web", "Dibuat hanya dalam 10 hari", "Namanya diambil dari bahasa lain yang lebih populer saat itu"]
   },
   {
-    id: 7, kategori: "Alat Musik",
-    soal: "Gamelan adalah ansambel musik tradisional yang paling terkenal berasal dari...",
-    pilihan: ["Aceh", "Jawa", "Sulawesi", "Kalimantan"],
-    jawaban: "Jawa",
-    clue: "Instrumen ini banyak digunakan dalam pertunjukan wayang dan tari istana."
+    question: "Danau terdalam di dunia berlokasi di negara...",
+    options: ["Kanada", "Rusia", "China", "Amerika Serikat"],
+    answer: 1,
+    clues: ["Danau itu bernama Baikal", "Terletak di Siberia", "Kedalamannya lebih dari 1.600 meter"]
   },
   {
-    id: 8, kategori: "Seni Rupa",
-    soal: "Teknik membuat hiasan dari potongan-potongan bahan yang ditempel pada bidang disebut...",
-    pilihan: ["Mozaik", "Montase", "Kolase", "Batik"],
-    jawaban: "Kolase",
-    clue: "Bahan yang dipakai bisa berupa kain, kertas koran, atau daun kering."
+    question: "Unsur kimia dengan simbol 'Au' adalah...",
+    options: ["Perak", "Tembaga", "Aluminium", "Emas"],
+    answer: 3,
+    clues: ["Digunakan sebagai alat tukar sejak zaman kuno", "Simbol berasal dari kata Latin 'Aurum'", "Logam mulia berwarna kuning mengkilap"]
   },
   {
-    id: 9, kategori: "Rumah Adat",
-    soal: "Rumah Gadang merupakan rumah adat khas dari suku...",
-    pilihan: ["Batak", "Minangkabau", "Bugis", "Sunda"],
-    jawaban: "Minangkabau",
-    clue: "Rumah ini memiliki atap melengkung menyerupai tanduk kerbau."
+    question: "Siapa yang menulis novel 'Bumi Manusia'?",
+    options: ["Chairil Anwar", "Pramoedya Ananta Toer", "Andrea Hirata", "Tere Liye"],
+    answer: 1,
+    clues: ["Penulisnya pernah dipenjara tanpa pengadilan", "Buku ini bagian dari Tetralogi Buru", "Setting-nya di era kolonial Belanda di Jawa"]
   },
   {
-    id: 10, kategori: "Wayang",
-    soal: "Jenis wayang yang terbuat dari kulit kerbau dan dimainkan dengan layar putih disebut...",
-    pilihan: ["Wayang Golek", "Wayang Kulit", "Wayang Beber", "Wayang Klitik"],
-    jawaban: "Wayang Kulit",
-    clue: "Wayang jenis ini biasa dipertunjukkan semalam suntuk oleh seorang dalang."
-  },
-  {
-    id: 11, kategori: "Tari",
-    soal: "Tari Tor-Tor merupakan tari tradisional dari suku...",
-    pilihan: ["Dayak", "Batak", "Sunda", "Papua"],
-    jawaban: "Batak",
-    clue: "Tari ini berasal dari Sumatera Utara dan sering dimainkan bersama gondang."
-  },
-  {
-    id: 12, kategori: "Batik",
-    soal: "Motif batik Mega Mendung yang terkenal berasal dari kota...",
-    pilihan: ["Solo", "Yogyakarta", "Cirebon", "Pekalongan"],
-    jawaban: "Cirebon",
-    clue: "Kota ini terletak di pesisir utara Jawa Barat."
-  },
-  {
-    id: 13, kategori: "Seni Rupa",
-    soal: "Ukiran khas Toraja yang penuh simbol filosofis pada rumah adat disebut...",
-    pilihan: ["Pa'tedong", "Pa'barana", "Pa'ssura", "Tongkonan"],
-    jawaban: "Pa'ssura",
-    clue: "Nama ini berarti 'tulisan' dalam bahasa Toraja."
-  },
-  {
-    id: 14, kategori: "Alat Musik",
-    soal: "Sasando adalah alat musik dawai khas dari Pulau...",
-    pilihan: ["Flores", "Timor", "Rote", "Sumba"],
-    jawaban: "Rote",
-    clue: "Pulau ini merupakan pulau paling selatan di Indonesia."
-  },
-  {
-    id: 15, kategori: "Kain",
-    soal: "Kain tradisional Sumatera Utara yang digunakan dalam berbagai upacara adat Batak disebut...",
-    pilihan: ["Ulos", "Tapis", "Songket", "Tenun Timor"],
-    jawaban: "Ulos",
-    clue: "Kain ini diberikan sebagai simbol kasih sayang dan berkat."
+    question: "Berapa jumlah sisi pada bangun datar heksagon?",
+    options: ["5", "7", "8", "6"],
+    answer: 3,
+    clues: ["Lebih dari 5 sisi", "Kurang dari 7 sisi", "Bentuk ini sering terlihat di sarang lebah"]
   }
 ];
 
-// =====================
-// STATE
-// =====================
-let namaUser = '';
-let soalGame = [];
-let indexSoal = 0;
+// ===== FICTIONAL SCORES =====
+const FICTIONAL_SCORES = [
+  { name: "RizkyGamer99", score: 980 },
+  { name: "SitiPintar", score: 940 },
+  { name: "BudiKeren", score: 900 },
+  { name: "NandaQuiz", score: 860 },
+  { name: "AmeliaS", score: 820 },
+];
+
+// ===== STATE =====
+let playerName = "";
+let currentQuestion = 0;
 let score = 0;
-let cluesSisa = 3;
+let correctCount = 0;
 let timerInterval = null;
-let waktuSisa = 10;
-let hasilReview = [];
-let sudahJawab = false;
+let timeLeft = 10;
+let cluesUsed = [false, false, false];
+let answered = false;
 
-// =====================
-// HELPERS
-// =====================
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+const CIRCUMFERENCE = 2 * Math.PI * 26; // r=26
+
+// ===== DOM REFS =====
+const pages = {
+  home: document.getElementById('page-home'),
+  game: document.getElementById('page-game'),
+  result: document.getElementById('page-result'),
+};
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  Object.values(pages).forEach(p => p.classList.remove('active'));
+  pages[name].classList.add('active');
 }
 
-function tampilPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+// ===== HOME LOGIC =====
+const nameCard = document.getElementById('name-card');
+const welcomeArea = document.getElementById('welcome-area');
+const nameInput = document.getElementById('name-input');
+const displayName = document.getElementById('display-name');
+const scoreModal = document.getElementById('score-modal');
 
-// =====================
-// INISIALISASI
-// =====================
-window.addEventListener('DOMContentLoaded', () => {
-  namaUser = localStorage.getItem('nusantara_nama') || '';
-  if (!namaUser) {
-    document.getElementById('modal-nama').classList.remove('hidden');
+function initHome() {
+  playerName = localStorage.getItem('quizblast_name') || '';
+  if (playerName) {
+    showWelcome();
   } else {
-    tampilkanSapa();
+    nameCard.style.display = 'flex';
+    welcomeArea.style.display = 'none';
   }
-  tampilPage('page-beranda');
-  initBeranda();
-});
-
-function initBeranda() {
-  document.getElementById('btn-simpan-nama').addEventListener('click', simpanNama);
-  document.getElementById('input-nama').addEventListener('keydown', e => {
-    if (e.key === 'Enter') simpanNama();
-  });
-  document.getElementById('btn-main').addEventListener('click', mulaiGame);
-  document.getElementById('btn-leaderboard').addEventListener('click', toggleLeaderboard);
-  document.getElementById('btn-tutup-lb').addEventListener('click', () => {
-    document.getElementById('leaderboard-panel').classList.add('hidden');
-  });
-  document.getElementById('btn-main-lagi').addEventListener('click', mulaiGame);
-  document.getElementById('btn-ke-beranda').addEventListener('click', () => tampilPage('page-beranda'));
 }
 
-function simpanNama() {
-  const val = document.getElementById('input-nama').value.trim();
+function showWelcome() {
+  nameCard.style.display = 'none';
+  welcomeArea.style.display = 'flex';
+  displayName.textContent = playerName;
+}
+
+document.getElementById('btn-save-name').addEventListener('click', () => {
+  const val = nameInput.value.trim();
   if (!val) {
-    shakeEl(document.getElementById('input-nama'));
-    document.getElementById('input-nama').style.borderColor = 'var(--wrong)';
+    nameInput.focus();
+    nameInput.style.borderColor = 'var(--neon-pink)';
+    nameInput.style.boxShadow = '0 0 0 3px rgba(255,45,120,0.2)';
+    setTimeout(() => {
+      nameInput.style.borderColor = '';
+      nameInput.style.boxShadow = '';
+    }, 1200);
     return;
   }
-  namaUser = val;
-  localStorage.setItem('nusantara_nama', namaUser);
-  document.getElementById('modal-nama').classList.add('hidden');
-  tampilkanSapa();
+  playerName = val;
+  localStorage.setItem('quizblast_name', playerName);
+  showWelcome();
+});
+
+nameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-save-name').click();
+});
+
+// ===== SCOREBOARD =====
+document.getElementById('btn-show-score').addEventListener('click', () => {
+  renderScoreboard();
+  scoreModal.classList.add('open');
+});
+document.getElementById('btn-close-score').addEventListener('click', () => {
+  scoreModal.classList.remove('open');
+});
+scoreModal.addEventListener('click', e => {
+  if (e.target === scoreModal) scoreModal.classList.remove('open');
+});
+
+function renderScoreboard() {
+  const myScore = parseInt(localStorage.getItem('quizblast_score') || '0');
+  let all = [...FICTIONAL_SCORES, { name: playerName || 'Kamu', score: myScore, isMe: true }];
+  all.sort((a, b) => b.score - a.score);
+
+  const list = document.getElementById('score-list');
+  list.innerHTML = '';
+
+  all.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'score-item' + (item.isMe ? ' score-me' : '');
+    div.style.animationDelay = `${idx * 0.07}s`;
+
+    const rankColors = ['rank-1', 'rank-2', 'rank-3'];
+    const rankSymbols = ['🥇', '🥈', '🥉'];
+    const rankClass = idx < 3 ? rankColors[idx] : '';
+    const rankLabel = idx < 3 ? rankSymbols[idx] : `#${idx + 1}`;
+
+    div.innerHTML = `
+      <span class="score-rank ${rankClass}">${rankLabel}</span>
+      <span class="score-pname">${item.name}${item.isMe ? ' (Kamu)' : ''}</span>
+      <span class="score-pts">${item.score}</span>
+    `;
+    list.appendChild(div);
+  });
 }
 
-function tampilkanSapa() {
-  const el = document.getElementById('sapa-user');
-  document.getElementById('nama-display').textContent = namaUser;
-  el.classList.remove('hidden');
-  popInEl(el);
-}
+// ===== START GAME =====
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-play-again').addEventListener('click', startGame);
+document.getElementById('btn-home').addEventListener('click', () => {
+  showPage('home');
+  initHome();
+});
 
-function toggleLeaderboard() {
-  const p = document.getElementById('leaderboard-panel');
-  p.classList.toggle('hidden');
-  if (!p.classList.contains('hidden')) {
-    animateEl(p, 'anim-slide-down', 300);
-  }
-}
-
-// =====================
-// GAME
-// =====================
-function mulaiGame() {
-  playStart();
-  soalGame = shuffle(BANK_SOAL).slice(0, 10);
-  indexSoal = 0;
+function startGame() {
+  currentQuestion = 0;
   score = 0;
-  cluesSisa = 3;
-  hasilReview = [];
-  tampilPage('page-game');
-  tampilSoal();
+  correctCount = 0;
+  showPage('game');
+  loadQuestion();
 }
 
-function tampilSoal() {
-  sudahJawab = false;
-  const soal = soalGame[indexSoal];
+// ===== GAME LOGIC =====
+function loadQuestion() {
+  if (currentQuestion >= QUESTIONS.length) {
+    endGame();
+    return;
+  }
 
-  document.getElementById('nomor-soal').textContent = indexSoal + 1;
-  document.getElementById('score-display').textContent = score;
-  document.getElementById('kategori-text').textContent = soal.kategori;
+  answered = false;
+  cluesUsed = [false, false, false];
 
-  const elSoal = document.getElementById('teks-soal');
-  elSoal.textContent = soal.soal;
-  animateEl(elSoal, 'anim-in', 300);
+  const q = QUESTIONS[currentQuestion];
 
-  document.getElementById('clue-box').classList.add('hidden');
+  // Update UI counters
+  document.getElementById('q-num').textContent = currentQuestion + 1;
+  document.getElementById('live-score').textContent = score;
+  document.getElementById('question-text').textContent = q.question;
+  document.getElementById('clue-display').textContent = '';
 
-  const btnClue = document.getElementById('btn-clue');
-  btnClue.disabled = cluesSisa <= 0;
-  document.getElementById('clue-sisa').textContent = cluesSisa;
-  btnClue.onclick = pakaiClue;
-
-  // Render pilihan jawaban dengan stagger
-  const grid = document.getElementById('jawaban-grid');
-  grid.innerHTML = '';
-  const shuffledPilihan = shuffle(soal.pilihan);
-  shuffledPilihan.forEach((pilihan, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn-jawaban';
-    btn.textContent = pilihan;
-    btn.style.animationDelay = `${i * 0.07}s`;
-    btn.classList.add('anim-in');
-    btn.addEventListener('click', () => pilihJawaban(pilihan, soal.jawaban, btn));
-    grid.appendChild(btn);
+  // Options
+  const optBtns = document.querySelectorAll('.option-btn');
+  optBtns.forEach((btn, i) => {
+    btn.className = 'option-btn';
+    btn.disabled = false;
+    document.getElementById(`opt-${i}`).textContent = q.options[i];
+    btn.onclick = () => selectAnswer(i);
   });
 
-  mulaiTimer();
+  // Reset clue buttons
+  [0, 1, 2].forEach(i => {
+    const btn = document.getElementById(`clue-${i + 1}`);
+    btn.disabled = false;
+    btn.className = 'clue-btn';
+    btn.textContent = `💡 ${i + 1}`;
+  });
+
+  // Reset feedback
+  const fb = document.getElementById('feedback-overlay');
+  fb.className = 'feedback-overlay';
+
+  // Start timer
+  startTimer();
 }
 
-function mulaiTimer() {
+function startTimer() {
   clearInterval(timerInterval);
-  waktuSisa = 10;
+  timeLeft = 10;
   updateTimerUI();
 
   timerInterval = setInterval(() => {
-    waktuSisa--;
+    timeLeft--;
     updateTimerUI();
 
-    if (waktuSisa > 0) {
-      playTikTok();
-      if (waktuSisa <= 3) flashTopbar();
-    }
-
-    if (waktuSisa <= 0) {
+    if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      waktuHabis();
+      if (!answered) timeUp();
     }
   }, 1000);
 }
 
 function updateTimerUI() {
-  const el = document.getElementById('timer-display');
-  el.textContent = waktuSisa;
-  el.classList.toggle('kritis', waktuSisa <= 3);
-  document.getElementById('progress-bar').style.width = (waktuSisa / 10 * 100) + '%';
+  const numEl = document.getElementById('timer-num');
+  const ring = document.getElementById('ring-progress');
+  const wrap = document.querySelector('.timer-wrap');
+
+  numEl.textContent = timeLeft;
+  const offset = CIRCUMFERENCE * (1 - timeLeft / 10);
+  ring.style.strokeDashoffset = offset;
+
+  if (timeLeft <= 3) {
+    wrap.classList.add('timer-urgent');
+  } else {
+    wrap.classList.remove('timer-urgent');
+  }
 }
 
-function waktuHabis() {
-  if (sudahJawab) return;
-  sudahJawab = true;
-  playWaktuHabis();
+function timeUp() {
+  answered = true;
+  disableOptions();
 
-  // Shake semua tombol
-  document.querySelectorAll('.btn-jawaban').forEach(b => {
-    b.disabled = true;
-    shakeEl(b);
-  });
+  // Reveal correct
+  const q = QUESTIONS[currentQuestion];
+  document.querySelectorAll('.option-btn')[q.answer].classList.add('correct');
 
-  const soal = soalGame[indexSoal];
-  hasilReview.push({ soal: soal.soal, pilihan: '(Waktu habis)', jawaban: soal.jawaban, benar: false });
+  showFeedback(false, 'WAKTU HABIS!');
+
   setTimeout(() => {
-    tampilkanJawabanBenar(soal.jawaban);
-    setTimeout(soalBerikutnya, 1000);
-  }, 500);
+    hideFeedback();
+    currentQuestion++;
+    loadQuestion();
+  }, 1800);
 }
 
-function pilihJawaban(pilihan, jawaban, btn) {
-  if (sudahJawab) return;
-  sudahJawab = true;
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  disableOptions();
+
+  const q = QUESTIONS[currentQuestion];
+  const btns = document.querySelectorAll('.option-btn');
+
+  if (idx === q.answer) {
+    btns[idx].classList.add('correct');
+    const bonus = timeLeft * 10; // max 100 bonus
+    const points = 100 + bonus;
+    score += points;
+    correctCount++;
+    showFeedback(true, `+${points} PTS!`);
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    showFeedback(false, 'SALAH!');
+  }
+
+  document.getElementById('live-score').textContent = score;
+
+  setTimeout(() => {
+    hideFeedback();
+    currentQuestion++;
+    loadQuestion();
+  }, 1800);
+}
+
+function disableOptions() {
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+}
+
+function showFeedback(isCorrect, text) {
+  const fb = document.getElementById('feedback-overlay');
+  document.getElementById('feedback-icon').textContent = isCorrect ? '✅' : '❌';
+  document.getElementById('feedback-text').textContent = text;
+  fb.className = 'feedback-overlay show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+}
+
+function hideFeedback() {
+  document.getElementById('feedback-overlay').className = 'feedback-overlay';
+}
+
+// ===== CLUE LOGIC =====
+document.querySelectorAll('.clue-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (answered) return;
+    const idx = parseInt(btn.dataset.index);
+    if (cluesUsed[idx]) return;
+
+    cluesUsed[idx] = true;
+    btn.disabled = true;
+    btn.className = 'clue-btn used';
+    btn.textContent = `✓ ${idx + 1}`;
+
+    const q = QUESTIONS[currentQuestion];
+    document.getElementById('clue-display').textContent = `💡 ${q.clues[idx]}`;
+  });
+});
+
+// ===== END GAME =====
+function endGame() {
   clearInterval(timerInterval);
 
-  document.querySelectorAll('.btn-jawaban').forEach(b => b.disabled = true);
+  // Save best score
+  const prev = parseInt(localStorage.getItem('quizblast_score') || '0');
+  if (score > prev) localStorage.setItem('quizblast_score', score);
 
-  const benar = pilihan === jawaban;
+  // Result emoji & title
+  const pct = correctCount / QUESTIONS.length;
+  let emoji, title;
+  if (pct === 1) { emoji = '🏆'; title = 'SEMPURNA!'; }
+  else if (pct >= 0.8) { emoji = '🎉'; title = 'LUAR BIASA!'; }
+  else if (pct >= 0.6) { emoji = '👏'; title = 'BAGUS!'; }
+  else if (pct >= 0.4) { emoji = '😅'; title = 'LUMAYAN...'; }
+  else { emoji = '💪'; title = 'AYO COBA LAGI!'; }
 
-  if (benar) {
-    playBenar();
-    btn.classList.add('benar');
-    bounceEl(btn);
-    score += 100 + waktuSisa * 10;
-    document.getElementById('score-display').textContent = score;
-    popInEl(document.querySelector('.game-score-wrap'));
-  } else {
-    playSalah();
-    btn.classList.add('salah');
-    shakeEl(btn);
-    tampilkanJawabanBenar(jawaban);
-  }
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-name').innerHTML = `Hasil kamu, <span>${playerName}</span>`;
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-correct').textContent = `${correctCount} dari ${QUESTIONS.length} soal benar`;
 
-  hasilReview.push({ soal: soalGame[indexSoal].soal, pilihan, jawaban, benar });
-  setTimeout(soalBerikutnya, 1300);
+  showPage('result');
 }
 
-function tampilkanJawabanBenar(jawaban) {
-  document.querySelectorAll('.btn-jawaban').forEach(b => {
-    if (b.textContent === jawaban) {
-      b.classList.add('benar');
-      bounceEl(b);
-    }
-    b.disabled = true;
-  });
-}
-
-function soalBerikutnya() {
-  indexSoal++;
-  if (indexSoal >= soalGame.length) {
-    tampilHasil();
-  } else {
-    tampilSoal();
-  }
-}
-
-function pakaiClue() {
-  if (cluesSisa <= 0 || sudahJawab) return;
-  playClue();
-  cluesSisa--;
-  document.getElementById('clue-sisa').textContent = cluesSisa;
-  if (cluesSisa <= 0) document.getElementById('btn-clue').disabled = true;
-
-  const clue = soalGame[indexSoal].clue;
-  document.getElementById('clue-text').textContent = clue;
-  const clueBox = document.getElementById('clue-box');
-  clueBox.classList.remove('hidden');
-  animateEl(clueBox, 'anim-slide-down', 300);
-}
-
-// =====================
-// HASIL
-// =====================
-function tampilHasil() {
-  tampilPage('page-hasil');
-
-  const totalBenar = hasilReview.filter(r => r.benar).length;
-  const persen = (totalBenar / hasilReview.length) * 100;
-
-  if (persen >= 80) {
-    setTimeout(playBenar, 0);
-    setTimeout(playBenar, 350);
-    setTimeout(playStart, 700);
-  } else {
-    playSalah();
-  }
-
-  document.getElementById('final-score').textContent = score;
-  popInEl(document.querySelector('.hasil-score-box'));
-
-  const elJudul = document.getElementById('hasil-judul');
-  const elIkon  = document.getElementById('hasil-icon');
-  elIkon.className = 'hasil-icon';
-
-  if (persen >= 80) {
-    elJudul.textContent = 'Luar Biasa! 🎉';
-    elIkon.innerHTML = '<i class="bi bi-trophy-fill"></i>';
-    elIkon.classList.add('bagus');
-  } else if (persen >= 50) {
-    elJudul.textContent = 'Lumayan Bagus!';
-    elIkon.innerHTML = '<i class="bi bi-patch-check-fill"></i>';
-    elIkon.classList.add('bagus');
-  } else {
-    elJudul.textContent = 'Tetap Semangat!';
-    elIkon.innerHTML = '<i class="bi bi-emoji-smile-fill"></i>';
-    elIkon.classList.add('kurang');
-  }
-  bounceEl(elIkon);
-
-  const reviewEl = document.getElementById('review-list');
-  reviewEl.innerHTML = '';
-  hasilReview.forEach((r, i) => {
-    const div = document.createElement('div');
-    div.className = 'review-item ' + (r.benar ? 'benar' : 'salah');
-    div.style.animationDelay = `${i * 0.05}s`;
-    div.classList.add('anim-in');
-    div.innerHTML = `
-      <div class="review-icon">
-        <i class="bi bi-${r.benar ? 'check-circle-fill' : 'x-circle-fill'}"></i>
-      </div>
-      <div>
-        <div class="review-soal">${i + 1}. ${r.soal}</div>
-        <div class="review-jawaban">
-          Jawabanmu: <span>${r.pilihan}</span>
-          ${!r.benar ? `&nbsp;·&nbsp; Jawaban benar: <span style="color:var(--correct)">${r.jawaban}</span>` : ''}
-        </div>
-      </div>
-    `;
-    reviewEl.appendChild(div);
-  });
-}
+// ===== INIT =====
+initHome();
